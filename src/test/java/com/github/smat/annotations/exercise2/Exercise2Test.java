@@ -47,6 +47,15 @@ public class Exercise2Test {
         assertEquals(42, result);
     }
 
+    @Test
+    public void should_not_run_disabled_rules() throws Exception {
+        TestClassWithDisabledMethod testClass = new TestClassWithDisabledMethod();
+
+        int result = engine.checkRules(testClass);
+
+        assertEquals(42, result);
+    }
+
     @Test(expected = MalformedInputFromRuleException.class)
     public void should_throw_exception_when_unknown_input_arguments_on_a_rule() throws Exception {
         TestClassWithUnknownInputArguments testClass = new TestClassWithUnknownInputArguments();

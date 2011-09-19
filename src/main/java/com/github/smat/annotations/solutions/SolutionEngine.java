@@ -26,19 +26,22 @@ class SolutionEngine {
                 if (!method.getReturnType().equals(Integer.class) && !method.getReturnType().equals(Integer.TYPE)) {
                     throw new MalformedOutputFromRuleException(method);
                 }
-                ArrayList<Object> arguments = new ArrayList<Object>();
-                for (Class<?> parameter : method.getParameterTypes()) {
-                    if (parameter.equals(Player.class)) {
-                        arguments.add(player);
+                EngineRule annotation = method.getAnnotation(EngineRule.class);
+                if (!annotation.disabled()) {
+                    ArrayList<Object> arguments = new ArrayList<Object>();
+                    for (Class<?> parameter : method.getParameterTypes()) {
+                        if (parameter.equals(Player.class)) {
+                            arguments.add(player);
+                        }
+                        else if (parameter.equals(Board.class)) {
+                            arguments.add(board);
+                        }
+                        else {
+                            throw new MalformedInputFromRuleException(parameter);
+                        }
                     }
-                    else if (parameter.equals(Board.class)) {
-                        arguments.add(board);
-                    }
-                    else {
-                        throw new MalformedInputFromRuleException(parameter);
-                    }
+                    total += (Integer) method.invoke(rules, arguments.toArray());
                 }
-                total += (Integer) method.invoke(rules, arguments.toArray());
             }
         }
         return total;
