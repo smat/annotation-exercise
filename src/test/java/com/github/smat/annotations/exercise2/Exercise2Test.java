@@ -23,6 +23,11 @@ public class Exercise2Test {
     }
 
     @Test
+    /**
+     * Hints:
+     * Check the content of the test-class.
+     * Ignore the returnvalue of the function for now.
+     */
     public void should_run_the_annotated_method_when_one_annotated_method_in_class() throws Exception {
         TestClassWithOneMethod testClass = new TestClassWithOneMethod();
 
