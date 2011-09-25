@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+           
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+
+<html>
+  <head>
+    <title>Presentation</title>
+
+    <meta charset='utf-8'>
+    <script
+      src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+  </head>
+
+  
+  <style>
+    /* Your individual styles here, or just use inline styles if that’s
+       what you want. */
+    
+    
+  </style>
+
+  <body style='display: none'>
+
+    <section class='slides layout-regular'>
+      
+      <!-- Your slides (<article>s) go here. Delete or comment out the
+           slides below. -->
+
+<article>
+    <h1>Annotations</h1>
+    <p>Stian Mathiassen, BEKK Consulting</p>
+    <p>stian.mathiassen@bekk.no @smat</p>
+</article>
+        
+<article>
+    <h1>Annotations</h1>
+    <h2>Not so dangerous after all</h2>
+</article>
+
+<article>
+    <h3>Agenda</h3>
+    <ul>
+        <li>Annotations
+        <li>Reflection
+        <li>Annotations og reflection together
+    </ul>
+</article>
+
+<article>
+    <h1>What is annotations?</h1>
+</article>
+
+<article>
+    <h3>What is annotaions used for</h3>
+    <ul>
+        <li>By the compiler and IDE
+        <li>Compile-time processing and code generation
+        <li><i>Runtime</i>
+    </ul>
+</article>
+
+<article>
+    <h3>How to make annotations</h3>
+    <pre>
+public @interface Annotation {
+}
+</pre>
+</article>
+
+<article>
+    <h3>How do you want your annotations to be used?</h3>
+<pre>
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Annotation {
+}
+</pre>
+</article>
+
+<article>
+    <h3>Annotations may also contain data</h3>
+<pre>
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Annotation {
+    String value() default "test";
+}
+</pre>
+
+<pre>
+@Annotation("test")
+@Annotation(value = "test")
+</pre>
+</article>
+
+<article>
+    <h3>Annotations may also contain data</h3>
+
+<pre>
+@Target({ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Annotation {
+    String text();
+    String[] multiple();
+    int number();
+}
+</pre>
+
+<pre>
+@Annotation(text = "test", number = 1, multiple = {"test1", "test2"})
+</pre>
+</article>
+
+<article>
+    <h3>But annotations does not do anything</h3>
+
+    <ul>
+        <li>Only metadata</li>
+        <li>Must be processed</li>
+    </ul>
+    <h2>
+        Solution = Reflection
+    </h2>
+</article>
+
+<article class="smaller">
+    <q>reflection is the process by which a computer program can observe (do type introspection) and modify its own structure and behavior at runtime</q>
+    <div class="author">Wikipedia</div>
+</article>
+
+<article>
+    <h3>Reflection - Reading metadata</h3>
+    <ul>
+        <li>java.lang.Class</li>
+        <li>java.lang.reflect.Field</li>
+        <li>java.lang.reflect.Method</li>
+        <li>java.lang.reflect.Constructor</li>
+        <li>...</li>
+    </ul>
+</article>
+
+<article class="smaller">
+    <h3>Field-example</h3>
+<pre>
+import java.lang.reflect.Field;
+
+public class FieldTest {
+    public String publicField = "This field is public";
+    private String privateField = "This field is private";
+
+    public void reflectiveMethod() throws NoSuchFieldException,
+                                          IllegalAccessException /* !!! */ {
+        Field field = FieldTest.class.getField("publicField");
+
+        for (Field currentField : FieldTest.class.getDeclaredFields()) {
+            currentField.setAccessible(true);
+            field.set(this, "Override field");
+        }
+    }
+}
+</pre>
+</article>
+
+<article>
+    <h3>Exciting <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Class.html">Class</a>-functions</h3>
+    <ul>
+        <li>getFields</li>
+        <li>getDeclaredFields</li>
+        <li>getField</li>
+        <li>getMethods</li>
+        <li>getDeclardMethods</li>
+        <li>getMethod</li>
+        <li>getContructors</li>
+        <li>getDeclaredContructors</li>
+        <li>newInstance</li>
+        <li>isInstance</li>
+    </ul>
+</article>
+
+<article>
+    <h1>Annotations + Reflection = True</h1>
+</article>
+
+<article>
+    <h3>Reflection of annotations</h3>
+
+    <p>AnnotatedElement interface:</p>
+
+    <ul>
+        <li>getAnnotation(Class&lt;T&gt; annotationClass)</li>
+        <li>getAnnotations()</li>
+        <li>getDeclaredAnnotations()</li>
+        <li>isAnnotationPresent(Class&lt;? extends Annotation&gt; annotationClass)</li>
+    </ul>
+</article>
+
+<article>
+    <h3>UnitTest-example</h3>
+
+<pre>
+public class UnitTester {
+    public static void main(String[] args) throws
+            InvocationTargetException, IllegalAccessException {
+        UnitTester tester = new UnitTester();
+
+        for (Method method : UnitTester.class.getMethods()) {
+            if (method.isAnnotationPresent(Test.class)) {
+                method.invoke(tester, null);
+            }
+        }
+    }
+
+    @Test
+    public void aTest() {
+        // Do something...
+    }
+}
+</pre>
+</article>
+
+<article class="smaller">
+    <h3>UnitTest-example II</h3>
+
+<pre>
+public class UnitTester {
+    public static void main(String[] args) throws Exception {
+        UnitTester tester = new UnitTester();
+
+        for (Method method : UnitTester.class.getMethods()) {
+            if (method.isAnnotationPresent(Test.class)) {
+                Test test = method.getAnnotation(Test.class);
+                try {
+                    method.invoke(tester, null);
+                }
+                catch (Exception e) {
+                    if ( ! test.expected().isInstance(e)) {
+                        throw e;
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void aTest() {
+        // Do something...
+    }
+}
+</pre>
+</article>
+
+<article class="smaller">
+    <h3>Spring meta-annotations</h3>
+
+<pre>
+@Component
+public @interface NotInTests {
+}
+</pre>
+
+<pre>
+@Component
+public @interface ProductionOnly {
+}
+</pre>
+
+<pre>
+&lt;context:component-scan base-package="com.foobar"&gt;
+    &lt;context:exclude-filter type="annotation"
+        expression="com.foobar.annotations.NotInTests"/&gt;
+&lt;context:component-scan&gt;
+</pre>
+
+<pre>
+&lt;context:component-scan base-package="com.foobar"&gt;
+    &lt;context:exclude-filter type="annotation"
+        expression="com.foobar.annotations.ProductionOnly"/&gt;
+&lt;context:component-scan&gt;
+</pre>
+</article>
+
+    </section>
+
+  </body>
+</html>
+
