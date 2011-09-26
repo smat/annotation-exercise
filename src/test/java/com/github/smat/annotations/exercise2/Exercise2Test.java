@@ -24,6 +24,7 @@ public class Exercise2Test {
 
     @Test
     /**
+     * The checkRules-function should be implemented during this exercise
      * Hints:
      * Check the content of the test-class.
      * Ignore the returnvalue of the function for now.
